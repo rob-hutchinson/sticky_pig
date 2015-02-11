@@ -1,12 +1,13 @@
 require 'pry'
 
 class Game
-  attr_reader :maxscore, :scores
+  attr_reader :maxscore, :scores, :winning_player
 
   def initialize maxscore=nil, players=2
     @maxscore = maxscore || 100
     @scores = Array.new(players, 0)
     @winner = false
+    @winning_player
   end
 
   def die_roll
@@ -23,21 +24,31 @@ class Game
   end
 
   class Pig < Game
-    attr_reader :temp_score
 
     def initialize maxscore=nil, players=2
       super
       @temp_score = 0
     end
 
-    def turn
-      roll = die_roll
-      unless roll == 1
-        @temp_score += roll
-        roll
-      else
-        @temp_score = 0
-        1
+    def turn player
+      loop do
+        roll = die_roll
+        unless roll == 1
+          @temp_score += roll
+          puts "You rolled #{roll}. Your score for the turn is now #{@temp_score}.\n"
+          puts "Would you like to roll again?"
+          if gets.chomp == "n"
+            bank(player)
+            puts "\nYour score is now #{scores[player]}.\n\n"
+            sleep(1)
+            puts "\n-----------------------------------------------\n"
+            return
+          end
+        else
+          puts "\nSorry! You rolled a #{roll}. Your score is still #{scores[player]}.\n\n"
+          puts "\n-----------------------------------------------\n"
+          return
+        end
       end
     end
 
@@ -48,23 +59,24 @@ class Game
   end
 
   class Hog < Game
-    attr_reader :dice_holder
 
     def initialize maxscore=nil, players=2
       super
-      @dice_num = 0
-      @dice_holder = []
     end
 
     def dice_num x
       @dice_num = x
     end
 
-    def turn
-      @dice_holder = []
-      @dice_num.times do @dice_holder << die_roll end
-        @dice_holder
-      end
+    def turn player
+      dice_holder = []
+      puts "How many dice would you like to roll?\n"
+      gets.chomp.to_i.times do dice_holder << die_roll end
+        puts "You rolled #{dice_holder} and your score for the turn was #{check(dice_holder,player)}."
+        puts "\nYour score is now #{scores[player]}.\n\n"
+        sleep(1)
+        puts "\n-----------------------------------------------\n"
+    end
 
       def check x, player_num=0
         if x.include?(1)
