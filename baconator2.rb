@@ -2,7 +2,7 @@ require 'pry'
 require './db/setup'
 require './lib/pig_player'
 require './lib/game_bacon_bits'
-require './lib/history'
+require './lib/scoreboard'
 
 play = Player.new
 
@@ -14,12 +14,12 @@ gets.chomp.to_i.times do
   puts "\nPlease enter a player name:\n"
   name = (gets.chomp.downcase.capitalize)
   play.name(name)
-  hist = History.where(name: name).first
+  hist = Scoreboard.where(name: name).first
   if hist
     puts "Welcome back #{name}."
     puts "Your history: #{hist.total} games played, #{hist.wins} wins, #{hist.losses} losses, and a #{hist.percentage} win percentage."
   else
-    hist = History.create(name: name, wins: 0, losses: 0)
+    hist = Scoreboard.create(name: name, wins: 0, losses: 0)
   end
 end
 
@@ -40,11 +40,10 @@ end
 p = game_class.new(maxscore, play.players.length)
 system 'clear'
 
-while p.winner == false
+until p.winner play.players
     (0...play.players.length).each do |x|
       puts "\n#{play.players[x]}, it is your turn. You currently have #{p.scores[x]} points.\n"
       p.turn x
-      binding.pry
     end
 end
 
@@ -60,7 +59,11 @@ puts "\n\nFinal Scoreboard:\n"
   #   end
   # end
   # p.remove_losing_players!(play.players, p.scores)
-  puts "#{} wins!!!."
-  
+  puts "#{p.winning_player} wins!!!"
+  binding.pry
+  hist = Scoreboard.where(name: p.winning_player).first
+  hist.wins += 1
+  hist.save!
+  puts "Your history: #{hist.total} games played, #{hist.wins} wins, #{hist.losses} losses, and a #{hist.percentage} win percentage."
 
 

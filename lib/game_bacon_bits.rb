@@ -14,12 +14,12 @@ class Game
     rand(1..6)
   end
 
-  def winner
+  def winner players
     (0...@scores.length).map{|x| 
       if @scores[x]>=@maxscore
-        @winner = true 
+        @winning_player = players[x] 
       end }
-      @winner
+      @winning_player
     end
   end
 
@@ -45,6 +45,7 @@ class Game
             return
           end
         else
+          @temp_score = 0
           puts "\nSorry! You rolled a #{roll}. Your score is still #{scores[player]}.\n\n"
           puts "\n-----------------------------------------------\n"
           return
