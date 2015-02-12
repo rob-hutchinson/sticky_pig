@@ -1,11 +1,9 @@
 require 'pry'
 require './db/setup'
-require './lib/pig_player'
-require './lib/game_bacon_bits'
-require './lib/scoreboard'
+require './lib/all'
 
 play = Player.new
-
+losers = []
 
 puts "\n\nWelcome to Baconator! Please help me set up your game.\n"
 
@@ -41,29 +39,28 @@ p = game_class.new(maxscore, play.players.length)
 system 'clear'
 
 until p.winner play.players
-    (0...play.players.length).each do |x|
-      puts "\n#{play.players[x]}, it is your turn. You currently have #{p.scores[x]} points.\n"
-      p.turn x
-    end
+  (0...play.players.length).each do |x|
+    puts "\n#{play.players[x]}, it is your turn. You currently have #{p.scores[x]} points.\n"
+    p.turn x
+  end
 end
 
 
 puts "GAME OVER"
 puts "\n\nFinal Scoreboard:\n"
 (0...play.players.length).map {|x| puts "#{play.players[x]}: #{p.scores[x]}"}
-# high_score, y = 0, 0
-  # (0...play.players.length).map do |x|
-  #   if p.scores[x] > high_score
-  #     high_score = p.scores[x]
-  #     y = x
-  #   end
-  # end
-  # p.remove_losing_players!(play.players, p.scores)
-  puts "#{p.winning_player} wins!!!"
-  binding.pry
-  hist = Scoreboard.where(name: p.winning_player).first
-  hist.wins += 1
-  hist.save!
-  puts "Your history: #{hist.total} games played, #{hist.wins} wins, #{hist.losses} losses, and a #{hist.percentage} win percentage."
+puts "#{p.winning_player} wins!!!"
 
+hist = Scoreboard.where(name: p.winning_player).first
+hist.wins += 1
+hist.save!
+
+puts "#{p.winning_player}'s history: #{hist.total} games played, #{hist.wins} wins, #{hist.losses} losses, and a #{hist.percentage} win percentage."
+losers = play.players.select{ |x| x != p.winning_player}
+losers.each do |x|
+  hist = Scoreboard.where(name: x).first
+  hist.losses += 1
+  hist.save!
+end
+binding.pry
 
