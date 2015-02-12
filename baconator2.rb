@@ -7,6 +7,21 @@ losers = []
 
 puts "\n\nWelcome to Baconator! Please help me set up your game.\n"
 
+puts "\nChoose mode"
+puts "1) Pig"
+puts "2) Hog"
+puts "3) Leaderboard"
+
+choice = gets.chomp.to_i
+if choice == 1
+  game_class = Pig
+elsif choice == 2
+  game_class = Hog
+else
+  system 'ruby leaderboard.rb'
+  exit
+end
+
 puts "How many players do you have?"
 gets.chomp.to_i.times do 
   puts "\nPlease enter a player name:\n"
@@ -24,16 +39,7 @@ end
 puts "\nWhat score would you like to play to?\n"
 maxscore = gets.chomp.to_i 
 
-puts "\nChoose mode"
-puts "1) Pig"
-puts "2) Hog"
 
-choice = gets.chomp.to_i
-if choice == 1
-  game_class = Pig
-else
-  game_class = Hog
-end
 
 p = game_class.new(maxscore, play.players.length)
 system 'clear'
@@ -62,5 +68,5 @@ losers.each do |x|
   hist.losses += 1
   hist.save!
 end
-binding.pry
+
 
